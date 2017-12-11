@@ -7,23 +7,28 @@ using Microsoft.AspNetCore.Mvc;
 
 using ComparaisonRisques.Models;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 
 namespace ComparaisonRisques.Controllers
 {
     [Produces("application/json")]
-    [Route("api/Patient")]
+    [Route("api/patient")]
     public class PatientController : Controller
     {
 
         private readonly PatientContext _context;
+        private readonly ILogger _logger;
 
-        public PatientController(PatientContext context)
+        public PatientController(ILogger<PatientController> logger,PatientContext context)
         {
+            _logger = logger;
             _context = context;
 
             if (_context.PatientItems.Count() == 0)
             {
+                // TODO : Trancher si c'est le bon endroit pour faire ça !!
                 // Insertion des données de tests
+                _logger.LogInformation("Insertion des données de tests depuis MOCK_DATA.JSON");
                 string jsonData = System.IO.File.ReadAllText(@"MOCK_DATA.JSON");
                 _context.AddRange(JsonConvert.DeserializeObject<List<PatientItem>>(jsonData));
                 _context.SaveChanges();
@@ -35,28 +40,60 @@ namespace ComparaisonRisques.Controllers
         [HttpPost]
         public IActionResult Create([FromBody]PatientItem patientItem)
         {
-            if (patientItem == null) { return BadRequest(); }
+            if (patientItem == null) {
+                _logger.LogWarning("Create : Patient vide.");
+                return BadRequest();
+            }
 
             // l'auto-incrément fonctionne lorsque la base de donnée est vide.
-            // avec l'insertion des données de tests, il tente de créer la première entité avec l'Id 1 ( les 500 premiers existent)
+            // avec l'insertion des données de tests, il tente de créer la première entité avec l'Id 1 ( les 500 premiers existent )
             // j'ai donc contourné l'auto-incrément en faisant max+1 ci dessous
             if (patientItem.Id == 0) { patientItem.Id = _context.PatientItems.Max(t => t.Id) + 1; }
 
-            // Définir ce qu'on doit faire si l'entité existe déjà
+            // TODO Définir ce qu'on doit faire si l'entité existe déjà
             var patientExist = _context.PatientItems.FirstOrDefault(t => t.Id == patientItem.Id);
+
+            // Vérifie la validité des données
+            TryValidateModel(patientItem);
+            if (!ModelState.IsValid)
+            {
+                // Crée la liste des erreurs provenant de la validation des données.
+                var errorList = (from item in ModelState where item.Value.Errors.Any() select item.Value.Errors[0].ErrorMessage).ToList();
+
+                _logger.LogWarning("Create : Données du patient invalides.");
+
+                // Si la validation échoue, retourne 400 + liste des erreurs (JSON)
+                return BadRequest(errorList);
+            }
 
             _context.PatientItems.Add(patientItem);
             _context.SaveChanges();
 
+            _logger.LogInformation("Create : Patient créé : {id} ", patientItem.Id);
+
             return CreatedAtRoute("Read", new { id = patientItem.Id }, patientItem);
         }
 
-        // Le R du CRUD : Sans ID, renvoie toute les entités
+        // Le R du CRUD : Renvoie toute les entités
         // GET: api/patient
         [HttpGet]
-        public IEnumerable<PatientItem> Read()
+        public IEnumerable<PatientItem> Read(string search, int limit)
         {
-            return _context.PatientItems.ToList();
+
+            var patientItems = _context.PatientItems.ToList();
+
+            if (search != null)
+            {
+                patientItems = patientItems.Where(t => t.Admin.Nom.ToLower().StartsWith(search.ToLower())).ToList();
+            }
+
+            if (limit != 0)
+            {
+                patientItems = patientItems.Take(limit).ToList();
+            }
+
+            _logger.LogInformation("Read : Liste des patients ({count})" + (search == null ? "" : " recherche : " + search) + (limit == 0 ? "" : " limite : " + limit)+".", patientItems.Count());
+            return patientItems;
         }
 
         // Le R du CRUD : Avec ID, renvoie l'entité demandée
@@ -64,10 +101,16 @@ namespace ComparaisonRisques.Controllers
         [HttpGet("{id}", Name = "Read")]
         public IActionResult Read(int id)
         {
+            
             PatientItem patientItem = _context.PatientItems.FirstOrDefault(t => t.Id == id);
 
-            if (patientItem == null) { return NotFound();}
+            // TODO Vérifier ce qu'on doit faire lorsque non trouvé : objet vide ou 404 ?
+            if (patientItem == null) {
+                _logger.LogWarning("Read : Patient {id} non trouvé.", id);
+                return NotFound();
+            }
 
+            _logger.LogInformation("Read : Lecture patient {id}.", patientItem.Id);
             return new ObjectResult(patientItem);
         }
         
@@ -76,13 +119,31 @@ namespace ComparaisonRisques.Controllers
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody]PatientItem patientItem)
         {
-            if (patientItem == null || patientItem.Id != id) { return BadRequest(); }
+
+            if (patientItem == null) {
+                _logger.LogWarning("Update : Patient vide.");
+                return BadRequest();
+            }
+
+            if (patientItem.Id != id) {
+                _logger.LogWarning("Update : L'Id patient ne correspond pas.");
+                return BadRequest();
+            }
 
             PatientItem patientExists = _context.PatientItems.FirstOrDefault(t => t.Id == id);
-            if (patientExists == null) { return NotFound(); }
 
+            // TODO Vérifier ce qu'on doit faire lorsque non trouvé : objet vide ou 404 ?
+            if (patientExists == null) {
+                _logger.LogWarning("Update : Patient {id} non trouvé.", id);
+                return NotFound();
+            }
+
+            // TODO : Mise à jour ne marche pas -> trouver une solution !!!
+            // Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource. Origin 'null' is therefore not allowed access.
             _context.PatientItems.Update(patientItem);
             _context.SaveChanges();
+
+            _logger.LogInformation("Update : mise à jour patient {id}.", patientItem.Id);
 
             return new NoContentResult();
         }
@@ -93,10 +154,17 @@ namespace ComparaisonRisques.Controllers
         public IActionResult Delete(int id)
         {
             PatientItem patientItem = _context.PatientItems.FirstOrDefault(t => t.Id == id);
-            if (patientItem == null) { return NotFound(); }
+
+            // TODO Vérifier ce qu'on doit faire lorsque non trouvé
+            if (patientItem == null) {
+                _logger.LogWarning("Update : Patient {id} non trouvé.", id);
+                return NotFound();
+            }
 
             _context.PatientItems.Remove(patientItem);
             _context.SaveChanges();
+
+            _logger.LogInformation("Delete : mise à jour patient {id}.", patientItem.Id);
 
             return new NoContentResult();
         }

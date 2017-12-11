@@ -27,6 +27,7 @@ namespace ComparaisonRisques
         public void ConfigureServices(IServiceCollection services)
         {
             //----
+            services.AddCors();
             services.AddDbContext<PatientContext>(opt => opt.UseInMemoryDatabase("PatientList"));
             services.AddMvc();
         }
@@ -39,6 +40,10 @@ namespace ComparaisonRisques
                 app.UseDeveloperExceptionPage();
             }
 
+            // Pour éviter le blocage des requêtes multiorigines (client test en local)
+            app.UseCors(builder => builder.AllowAnyOrigin()
+                           .AllowAnyHeader()
+                           .AllowAnyMethod());
             app.UseMvc();
         }
     }
