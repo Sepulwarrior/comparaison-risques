@@ -41,8 +41,8 @@ namespace ComparaisonRisques.Controllers
         public IActionResult Create([FromBody]PatientItem patientItem)
         {
             if (patientItem == null) {
-                _logger.LogWarning("Create : Patient vide.");
-                return BadRequest();
+                _logger.LogWarning("Update : Patient vide ou incomplet.");
+                return BadRequest("Patient vide ou incomplet.");
             }
 
             // l'auto-incrément fonctionne lorsque la base de donnée est vide.
@@ -107,7 +107,7 @@ namespace ComparaisonRisques.Controllers
             // TODO Vérifier ce qu'on doit faire lorsque non trouvé : objet vide ou 404 ?
             if (patientItem == null) {
                 _logger.LogWarning("Read : Patient {id} non trouvé.", id);
-                return NotFound();
+                return NotFound("Patient "+id+" non trouvé.");
             }
 
             _logger.LogInformation("Read : Lecture patient {id}.", patientItem.Id);
@@ -121,31 +121,41 @@ namespace ComparaisonRisques.Controllers
         {
 
             if (patientItem == null) {
-                _logger.LogWarning("Update : Patient vide.");
-                return BadRequest();
+                _logger.LogWarning("Update : Patient vide ou incomplet.");
+                return BadRequest("Patient vide ou incomplet.");
             }
 
             if (patientItem.Id != id) {
                 _logger.LogWarning("Update : L'Id patient ne correspond pas.");
-                return BadRequest();
+                return BadRequest("L'Id patient ne correspond pas.");
             }
-
-            PatientItem patientExists = _context.PatientItems.FirstOrDefault(t => t.Id == id);
-
-            // TODO Vérifier ce qu'on doit faire lorsque non trouvé : objet vide ou 404 ?
-            if (patientExists == null) {
+                        
+            int patientExists = _context.PatientItems.Count(t => t.Id == id);
+            if (patientExists==0)
+            {
                 _logger.LogWarning("Update : Patient {id} non trouvé.", id);
-                return NotFound();
+                return NotFound("Patient "+id+" non trouvé.");
             }
 
-            // TODO : Mise à jour ne marche pas -> trouver une solution !!!
-            // Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource. Origin 'null' is therefore not allowed access.
+            // Vérifie la validité des données
+            TryValidateModel(patientItem);
+            if (!ModelState.IsValid)
+            {
+                // Crée la liste des erreurs provenant de la validation des données.
+                var errorList = (from item in ModelState where item.Value.Errors.Any() select item.Value.Errors[0].ErrorMessage).ToList();
+
+                _logger.LogWarning("Create : Données du patient invalides.");
+
+                // Si la validation échoue, retourne 400 + liste des erreurs (JSON)
+                return BadRequest(errorList);
+            }
+
             _context.PatientItems.Update(patientItem);
             _context.SaveChanges();
 
             _logger.LogInformation("Update : mise à jour patient {id}.", patientItem.Id);
 
-            return new NoContentResult();
+            return NoContent();
         }
         
         // Le D de CRUD
@@ -155,18 +165,19 @@ namespace ComparaisonRisques.Controllers
         {
             PatientItem patientItem = _context.PatientItems.FirstOrDefault(t => t.Id == id);
 
-            // TODO Vérifier ce qu'on doit faire lorsque non trouvé
-            if (patientItem == null) {
-                _logger.LogWarning("Update : Patient {id} non trouvé.", id);
-                return NotFound();
+            // Idempotence : le Delete doit avoir le même résultat que le patient soit trouvé ou pas.
+            int patientExists = _context.PatientItems.Count(t => t.Id == id);
+            if (patientExists == 0) {
+                _logger.LogInformation("Delete : suppression du patient {id}.", patientItem.Id);
+                return NoContent();
             }
 
             _context.PatientItems.Remove(patientItem);
             _context.SaveChanges();
 
-            _logger.LogInformation("Delete : mise à jour patient {id}.", patientItem.Id);
+            _logger.LogInformation("Delete : suppression du patient {id}.", patientItem.Id);
 
-            return new NoContentResult();
+            return NoContent();
         }
     }
 }
