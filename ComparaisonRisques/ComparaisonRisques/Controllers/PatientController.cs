@@ -16,10 +16,10 @@ namespace ComparaisonRisques.Controllers
     public class PatientController : Controller
     {
 
-        private readonly PatientContext _context;
+        private readonly MyContext _context;
         private readonly ILogger _logger;
 
-        public PatientController(ILogger<PatientController> logger,PatientContext context)
+        public PatientController(ILogger<PatientController> logger,MyContext context)
         {
             _logger = logger;
             _context = context;
@@ -168,14 +168,14 @@ namespace ComparaisonRisques.Controllers
             // Idempotence : le Delete doit avoir le même résultat que le patient soit trouvé ou pas.
             int patientExists = _context.PatientItems.Count(t => t.Id == id);
             if (patientExists == 0) {
-                _logger.LogInformation("Delete : suppression du patient {id}.", patientItem.Id);
+                _logger.LogInformation("Delete : suppression du patient {id}.", id);
                 return NoContent();
             }
 
             _context.PatientItems.Remove(patientItem);
             _context.SaveChanges();
 
-            _logger.LogInformation("Delete : suppression du patient {id}.", patientItem.Id);
+            _logger.LogInformation("Delete : suppression du patient {id}.", id);
 
             return NoContent();
         }
