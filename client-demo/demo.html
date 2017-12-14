@@ -1,0 +1,23 @@
+<html>
+	<head>
+		<style>
+			body{background-color:#F7F7F7;}
+			div {text-align:center;margin:0 auto;}
+			button{margin:5px;}
+			select{display:block;margin: 10px auto;}
+			input{display:block;margin:5px auto;}
+		</style>
+		<!-- Google Chart-->
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+		<script type="text/javascript" src="js/fiche-patient.js"></script>
+	</head>
+	<body>
+		<div id="choise_block">
+			<button onclick="showSearch()">Fiches patient</button>
+			<button onclick="showGraph()">Statistiques</button>
+		</div>
+		<div id="search_block" style="display:none"></div>
+		<div id="edit_block" style="display:none"></div>
+		<div id="graph_block" style="display:none"></div>
+	</body>
+</html>

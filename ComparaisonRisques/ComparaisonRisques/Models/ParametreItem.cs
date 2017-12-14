@@ -25,6 +25,8 @@ namespace ComparaisonRisques.Models
             HbA1c = patientItem.Const_biologique.HbA1c;
             Cholesterol_total = patientItem.Const_biologique.Cholesterol_total;
             Cholesterol_HDC = patientItem.Const_biologique.Cholesterol_total- patientItem.Const_biologique.Cholesterol_HDL;
+            PSS = patientItem.Parametres.PSS;
+            Consommation_tabagique = patientItem.Assuetudes.Consommation_tabagique;
         }
 
     }
