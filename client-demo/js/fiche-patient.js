@@ -214,13 +214,13 @@ function newResponse(){
 }
 	
 function showGraph(){
-	document.getElementById("choise_block").style.display = "none";
+	document.getElementById("choice_block").style.display = "none";
 	document.getElementById("graph_block").style.display = "block";
 	loadGraphSend();
 }
 function showSearch(){
 	
-	document.getElementById("choise_block").style.display = "none";
+	document.getElementById("choice_block").style.display = "none";
 	document.getElementById("search_block").style.display = "block";
 	
 	var inputSearch = document.createElement("input");
@@ -239,24 +239,24 @@ function showSearch(){
 	createPat.innerHTML="Creer";
 	document.getElementById("search_block").appendChild(createPat);
 	
-	var retChoise = document.createElement("button");
-	retChoise.onclick = function(){returnToChoise();};
-	retChoise.innerHTML="Retour";
-	document.getElementById("search_block").appendChild(retChoise);
+	var retchoice = document.createElement("button");
+	retchoice.onclick = function(){returnTochoice();};
+	retchoice.innerHTML="Retour";
+	document.getElementById("search_block").appendChild(retchoice);
 }
 function returnToSearch(){
 	document.getElementById("edit_block").innerHTML="";
 	document.getElementById("edit_block").style.display = "none";
 	document.getElementById("search_block").style.display = "block";
 }
-function returnToChoise(){
+function returnTochoice(){
 	document.getElementById("search_block").innerHTML="";
 	document.getElementById("search_block").style.display = "none";
 	
 	document.getElementById("graph_block").innerHTML="";
 	document.getElementById("graph_block").style.display = "none";
 	
-	document.getElementById("choise_block").style.display = "block";
+	document.getElementById("choice_block").style.display = "block";
 }
 
 var abscisse="Age";
@@ -268,10 +268,10 @@ function loadGraphSend(){
 }
 function loadGraphResponse(){
 	
-	var retChoise = document.createElement("button");
-	retChoise.onclick = function(){returnToChoise();};
-	retChoise.innerHTML="Retour";
-	document.getElementById("graph_block").appendChild(retChoise);
+	var retchoice = document.createElement("button");
+	retchoice.onclick = function(){returnTochoice();};
+	retchoice.innerHTML="Retour";
+	document.getElementById("graph_block").appendChild(retchoice);
 		
 	var selectAbscisse = document.createElement("select");
 	var obj = JSON.parse(this.responseText);
