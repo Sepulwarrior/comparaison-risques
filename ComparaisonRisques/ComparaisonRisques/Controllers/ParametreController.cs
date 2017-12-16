@@ -26,7 +26,7 @@ namespace ComparaisonRisques.Controllers
             _context = context;
         }
 
-        // Liste des données statistiques brute
+        // Liste des données statistiques brutes
         // Utile dans le cas où le client souhaite traiter les données par lui-même
         // GET: api/parametre
         [HttpGet]
@@ -47,7 +47,6 @@ namespace ComparaisonRisques.Controllers
 
         // Retourne un ensemble de point destinés à alimenter un graphique de type "ligne"
         // L'abscisse et l'ordonnée sont choisies parmi les paramètres
-        // GET: api/parametre/scatter_chart/Age/BMI
         // GET: api/parametre/line_chart/Age/BMI
         [HttpGet("line_chart/{abscisse}/{ordonnee}")]
         public IActionResult LineChart(string abscisse, string ordonnee)
