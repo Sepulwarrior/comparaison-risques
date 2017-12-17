@@ -5,10 +5,16 @@
 			div {text-align:center;margin:0 auto;}
 			button{margin:5px;}
 			select{display:block;margin: 10px auto;}
-			input{display:block;margin:5px auto;}
+			input{width:200px;margin:10px auto;}
+			label {
+  display: inline-block;
+  width: 200px;
+  text-align: right;
+  margin:10px;
+}​
 		</style>
 		<!-- Google Chart-->
-		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+		<!--script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script-->
 		<script type="text/javascript" src="js/fiche-patient.js"></script>
 	</head>
 	<body>
@@ -16,6 +22,7 @@
 			<button onclick="showSearch()">Fiches patient</button>
 			<button onclick="showGraph()">Statistiques</button>
 		</div>
+		<div id="info_block"></div>
 		<div id="search_block" style="display:none"></div>
 		<div id="edit_block" style="display:none"></div>
 		<div id="graph_block" style="display:none"></div>

@@ -14,7 +14,11 @@ function sendRequest(callback,URL="",method="GET",body=null) {
 function xhrSuccess() { 
 	console.log(this.statusText+' '+this.responseText); 
     if (this.status==200 || this.status==204){
+		document.getElementById("info_block").innerHTML="";
 		this.callback.apply(this, this.arguments); 
+	}else{
+		document.getElementById("info_block").innerHTML=this.responseText;
+		document.getElementById("info_block").style.backgroundColor="#FF0000";
 	}
 }
 function xhrError() { 
@@ -25,10 +29,18 @@ function searchSend(){
 	sendRequest(searchResponse,base_URL+'patient?search='+document.getElementById("search").value+'&limit=5','GET');
 }
 function searchResponse(){
-	var res = "";
 	var obj = JSON.parse(this.responseText);
-	obj.forEach(function(patient) { res += patient.admin.nom+" "+patient.admin.prenom+" <button type='button' onclick=editSend("+patient.id+")>Editer</button><br/>";});
-	document.getElementById("result").innerHTML = res;
+	obj.forEach(function(patient) {
+				var div = document.createElement("div");
+				var label = document.createElement("label");
+				label.innerHTML = patient.admin.nom+" "+patient.admin.prenom;
+				div.appendChild(label);
+				var buttonEdit = document.createElement("button");
+				buttonEdit.onclick=function(){editSend(patient.id);};
+				buttonEdit.innerHTML="Editer";
+				div.appendChild(buttonEdit);
+				document.getElementById("result").appendChild(div);
+		});
 }
 
 function deleteSend(id){
@@ -36,6 +48,8 @@ function deleteSend(id){
 }
 function deleteResponse(){
 	returnToSearch()
+	document.getElementById("info_block").innerHTML="Suppression OK";
+	document.getElementById("info_block").style.backgroundColor="#00FF00";
 }
 
 function updateSend(id){
@@ -71,6 +85,8 @@ function updateSend(id){
 }
 function updateResponse(){
 	returnToSearch()
+	document.getElementById("info_block").innerHTML="Mise à jour OK";
+	document.getElementById("info_block").style.backgroundColor="#00FF00";
 }
 		
 function createSend(){
@@ -106,6 +122,8 @@ function createSend(){
 }
 function createResponse(){
 	returnToSearch()
+	document.getElementById("info_block").innerHTML="Creation OK";
+	document.getElementById("info_block").style.backgroundColor="#00FF00";
 }
 		
 function editSend(id){
@@ -126,16 +144,28 @@ function editResponse(){
 		
 	for (var prop1 in obj) {
 		if (typeof(obj[prop1])=='object'){
-			for (var prop2 in obj[prop1]) {	
+			for (var prop2 in obj[prop1]) {
+				var div = document.createElement("div");
+				var label = document.createElement("label");
+				label.for = prop1+'.'+prop2;
+				label.innerHTML = prop2;
+				div.appendChild(label);				
 				var input = document.createElement("input");
 				input.type = "text";
+				input.id = prop1+'.'+prop2;
 				input.name = prop1+'.'+prop2;
 				input.value = obj[prop1][prop2];
-				form.appendChild(input);
+				div.appendChild(input);
+				form.appendChild(div);
 			}
 		}else{
+			var label = document.createElement("label");
+			label.for = prop1;
+			label.innerHTML = prop1;
+			form.appendChild(label);
 			var input = document.createElement("input");
 			input.type = "text";
+			input.id = prop1;
 			input.name = prop1;
 			input.value = obj[prop1];
 			input.disabled = true;
@@ -183,21 +213,34 @@ function newResponse(){
 	for (var prop1 in obj) {
 		if (typeof(obj[prop1])=='object'){
 			for (var prop2 in obj[prop1]) {	
+				var div = document.createElement("div");
+				var label = document.createElement("label");
+				label.for = prop1+'.'+prop2;
+				label.innerHTML = prop2;
+				div.appendChild(label);				
 				var input = document.createElement("input");
 				input.type = "text";
+				input.id = prop1+'.'+prop2;
 				input.name = prop1+'.'+prop2;
+				input.placeholder = obj[prop1][prop2];
 				input.value = "";
-				form.appendChild(input);
+				div.appendChild(input);
+				form.appendChild(div);
 			}
 		}else{
+			var label = document.createElement("label");
+			label.for = prop1;
+			label.innerHTML = prop1;
+			form.appendChild(label);
 			var input = document.createElement("input");
 			input.type = "text";
+			input.id = prop1;
 			input.name = prop1;
 			input.value = 0;
 			input.disabled = true;
 			form.appendChild(input);
 		}	
-	}
+	}		
 	
 	document.getElementById("edit_block").appendChild(form);
 
@@ -214,12 +257,14 @@ function newResponse(){
 }
 	
 function showGraph(){
+	document.getElementById("info_block").innerHTML="";
 	document.getElementById("choice_block").style.display = "none";
 	document.getElementById("graph_block").style.display = "block";
 	loadGraphSend();
 }
 function showSearch(){
 	
+	document.getElementById("info_block").innerHTML="";
 	document.getElementById("choice_block").style.display = "none";
 	document.getElementById("search_block").style.display = "block";
 	
@@ -245,11 +290,13 @@ function showSearch(){
 	document.getElementById("search_block").appendChild(retchoice);
 }
 function returnToSearch(){
+	document.getElementById("info_block").innerHTML="";
 	document.getElementById("edit_block").innerHTML="";
 	document.getElementById("edit_block").style.display = "none";
 	document.getElementById("search_block").style.display = "block";
 }
 function returnTochoice(){
+	document.getElementById("info_block").innerHTML="";
 	document.getElementById("search_block").innerHTML="";
 	document.getElementById("search_block").style.display = "none";
 	
