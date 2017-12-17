@@ -30,7 +30,7 @@ namespace ComparaisonRisques
         {
             //----
             services.AddCors();
-            services.AddDbContext<MyContext>(opt => opt.UseInMemoryDatabase("PatientList"));
+            services.AddDbContext<MyContext>(opt => opt.UseInMemoryDatabase("CompaRisques"));
             services.AddMvc();
 
             // Register the Swagger generator, defining one or more Swagger documents
