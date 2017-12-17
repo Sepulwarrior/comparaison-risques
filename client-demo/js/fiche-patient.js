@@ -30,6 +30,7 @@ function searchSend(){
 }
 function searchResponse(){
 	var obj = JSON.parse(this.responseText);
+	document.getElementById("result").innerHTML="";
 	obj.forEach(function(patient) {
 				var div = document.createElement("div");
 				var label = document.createElement("label");
@@ -308,10 +309,11 @@ function returnTochoice(){
 
 var abscisse="Age";
 var ordonnee="BMI";
+var graphtype="scatter_chart";
 google.charts.load('current', {'packages':['corechart']});
 	
 function loadGraphSend(){
-	sendRequest(loadGraphResponse,base_URL+'parametre/graph','GET');
+	sendRequest(loadGraphResponse,base_URL+'parametre/info','GET');
 }
 function loadGraphResponse(){
 	
@@ -338,10 +340,26 @@ function loadGraphResponse(){
 	document.getElementById("graph_block").appendChild(selectAbscisse);
 	document.getElementById("graph_block").appendChild(selectOrdonnee);
 	
+	var selectGraphType = document.createElement("select");
+
+	var optScatterChart = document.createElement('option');
+	optScatterChart.value = "scatter_chart";
+	optScatterChart.innerHTML = "ScatterChart";
+	selectGraphType.appendChild(optScatterChart);
+	
+	var optLineChart = document.createElement('option');
+	optLineChart.value = "line_chart";
+	optLineChart.innerHTML = "LineChart";
+	selectGraphType.appendChild(optLineChart);
+	
+	selectGraphType.onchange=function(){ graphtype=this.value;console.log("graphtype="+graphtype);drawChartSend();	 };
+	
+	document.getElementById("graph_block").appendChild(selectGraphType);
+			
 	var chart_div = document.createElement("div");
 	chart_div.id="chart_div";
-	chart_div.style.width="70%";
-	chart_div.style.height="70%";
+	chart_div.style.width="90%";
+	chart_div.style.height="80%";
 	document.getElementById("graph_block").appendChild(chart_div);
 	
 	drawChartSend();				
@@ -349,7 +367,7 @@ function loadGraphResponse(){
 }
 
 function drawChartSend() {
-	sendRequest(drawChartResponse,base_URL+'parametre/scatter_chart/'+abscisse+'/'+ordonnee,'GET');	
+	sendRequest(drawChartResponse,base_URL+'parametre/'+graphtype+'/'+abscisse+'/'+ordonnee,'GET');	
 }
 function drawChartResponse() {
   	
@@ -360,7 +378,11 @@ function drawChartResponse() {
 
 	//ScatterChart
 	//LineChart
-	var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
+	if(graphtype=="line_chart"){
+		var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+	}else{
+		var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
+	}
 	chart.draw(data, options);
 
 }
