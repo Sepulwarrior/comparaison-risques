@@ -1,5 +1,5 @@
 
-var base_URL = 'http://localhost:59824/api/';
+var base_URL = 'http://172.25.84.195/api/';
 	
 function sendRequest(callback,URL="",method="GET",body=null) {
     var xhr = new XMLHttpRequest();
