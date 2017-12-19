@@ -14,6 +14,7 @@ using ComparaisonRisques.Models;
 using Swashbuckle.AspNetCore;
 using Swashbuckle.AspNetCore.Swagger;
 
+
 namespace ComparaisonRisques
 {
     public class Startup
@@ -21,6 +22,13 @@ namespace ComparaisonRisques
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            using (var client = new MyContext(new DbContextOptionsBuilder<MyContext>().UseSqlite("Filename=data/comparaison-risques.db").Options))
+            {
+                client.Database.EnsureCreated();
+                client.EnsureSeeded();
+            }
+
         }
 
         public IConfiguration Configuration { get; }
@@ -28,42 +36,40 @@ namespace ComparaisonRisques
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //----
+
             services.AddCors();
-            services.AddDbContext<MyContext>(opt => opt.UseInMemoryDatabase("CompaRisques"));
+            //services.AddDbContext<MyContext>(opt => opt.UseInMemoryDatabase("comparaison-risques"));
+            services.AddDbContext<MyContext>(opt => opt.UseSqlite("Filename=data/comparaison-risques.db"));
+
             services.AddMvc();
 
-            // Register the Swagger generator, defining one or more Swagger documents
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("prototype", new Info { Title = "API de comparaison des risques", Version = "prototype" });
-            });
+            // Définition du document Swagger
+            services.AddSwaggerGen(c => c.SwaggerDoc("prototype", new Info { Title = "API de comparaison des risques", Version = "prototype" }));
 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
+            // Fichers logs
+            loggerFactory.AddFile("log/comparaison-riques_{Date}.txt");
+
             // Pour éviter le blocage des requêtes multiorigines (client test en local)
             app.UseCors(builder => builder  .AllowAnyOrigin()
                                             .AllowAnyHeader()
                                             .AllowAnyMethod());
 
-            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            // Activation de Swagger
             app.UseSwagger();
-
-            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/prototype/swagger.json", "API de comparaison des risques.");
-            });
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/prototype/swagger.json", "API de comparaison des risques."));
 
             app.UseMvc();
+
         }
     }
 }

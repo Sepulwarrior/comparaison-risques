@@ -36,13 +36,13 @@ namespace ComparaisonRisques.Controllers
             return _context.ParametreItems.ToList();
         }
 
-        // La liste des paramètres disponibles (nom des propriétés)
+        // La liste des paramètres disponibles (nom des propriétés) et les détails sur celle-ci (unités, min, max ..)
         // GET: api/parametre/info
         [HttpGet("info")]
         public IActionResult Info()
         {
-            _logger.LogInformation("Info : paramètres disponibles.");
-            return new ObjectResult(((new ParametreItem().GetType()).GetProperties()).Where(p => p.Name != "Id").Select(p=>p.Name));
+            _logger.LogInformation("Info : paramètres disponibles (parametre).");
+            return new ObjectResult(_context.ParametreInfos.Where(p => p.Groupe == GroupeInfo.Paramètre || p.Groupe == GroupeInfo.PatientEtParamètre).ToList());
         }
 
         // Retourne un ensemble de point destinés à alimenter un graphique de type "ligne"

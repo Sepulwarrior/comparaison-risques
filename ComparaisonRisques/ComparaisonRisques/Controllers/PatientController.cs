@@ -6,8 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using ComparaisonRisques.Models;
-using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace ComparaisonRisques.Controllers
 {
@@ -22,17 +23,7 @@ namespace ComparaisonRisques.Controllers
         public PatientController(ILogger<PatientController> logger,MyContext context)
         {
             _logger = logger;
-            _context = context;
-
-            if (_context.PatientItems.Count() == 0)
-            {
-                // TODO : Trancher si c'est le bon endroit pour faire ça !!
-                // Insertion des données de tests
-                _logger.LogInformation("Insertion des données de tests depuis MOCK_DATA.JSON");
-                string jsonData = System.IO.File.ReadAllText(@"MOCK_DATA.JSON");
-                _context.AddRange(JsonConvert.DeserializeObject<List<PatientItem>>(jsonData));
-                _context.SaveChanges();
-            }
+            _context = context;  
         }
 
         // Le C du CRUD : renvoie l'entité crée
@@ -41,17 +32,22 @@ namespace ComparaisonRisques.Controllers
         public IActionResult Create([FromBody]PatientItem patientItem)
         {
             if (patientItem == null) {
-                _logger.LogWarning("Update : Patient vide ou incomplet.");
+                _logger.LogWarning("Create : Patient vide ou incomplet.");
                 return BadRequest("Patient vide ou incomplet.");
             }
 
             // l'auto-incrément fonctionne lorsque la base de donnée est vide.
             // avec l'insertion des données de tests, il tente de créer la première entité avec l'Id 1 ( les 500 premiers existent )
             // j'ai donc contourné l'auto-incrément en faisant max+1 ci dessous
-            if (patientItem.Id == 0) { patientItem.Id = _context.PatientItems.Max(t => t.Id) + 1; }
-
-            // TODO Définir ce qu'on doit faire si l'entité existe déjà
-            var patientExist = _context.PatientItems.FirstOrDefault(t => t.Id == patientItem.Id);
+            if (patientItem.Id == 0)
+            {
+                patientItem.Id = _context.PatientItems.Max(t => t.Id) + 1;
+            }
+            else
+            {
+                _logger.LogWarning("Create : Id doit être égal à 0.");
+                return BadRequest("Id doit être égal à 0.");
+            }
 
             // Vérifie la validité des données
             TryValidateModel(patientItem);
@@ -66,7 +62,9 @@ namespace ComparaisonRisques.Controllers
                 return BadRequest(errorList);
             }
 
+            // Ajout du patient et du paramètre associé 
             _context.PatientItems.Add(patientItem);
+            _context.ParametreItems.Add(new ParametreItem(patientItem));
             _context.SaveChanges();
 
             _logger.LogInformation("Create : Patient créé : {id} ", patientItem.Id);
@@ -77,21 +75,30 @@ namespace ComparaisonRisques.Controllers
         // Le R du CRUD : Renvoie toute les entités
         // GET: api/patient
         [HttpGet]
-        public IEnumerable<PatientItem> Read(string search, int limit)
+        public IEnumerable<PatientItem> Read(string search="", int limit=0)
         {
+            var p = _context.ParametreInfos;
 
-            var patientItems = _context.PatientItems.ToList();
+            var patientItems = _context.PatientItems
+                .Include("Admin")
+                .Include("Biometrie")
+                .Include("Const_biologique")
+                .Include("Parametres")
+                .Include("Assuetudes")
+                .ToList();
 
-            if (search != null)
+            // Filtre sur le Nom
+            if (search != "")
             {
                 patientItems = patientItems.Where(t => t.Admin.Nom.ToLower().StartsWith(search.ToLower())).ToList();
             }
 
+            // Limite ne nombre d'entrées
             if (limit != 0)
             {
                 patientItems = patientItems.Take(limit).ToList();
             }
-
+            
             _logger.LogInformation("Read : Liste des patients ({count})" + (search == null ? "" : " recherche : " + search) + (limit == 0 ? "" : " limite : " + limit)+".", patientItems.Count());
             return patientItems;
         }
@@ -101,10 +108,14 @@ namespace ComparaisonRisques.Controllers
         [HttpGet("{id}", Name = "Read")]
         public IActionResult Read(int id)
         {
-            
-            PatientItem patientItem = _context.PatientItems.FirstOrDefault(t => t.Id == id);
+            PatientItem patientItem = _context.PatientItems
+                            .Include("Admin")
+                            .Include("Biometrie")
+                            .Include("Const_biologique")
+                            .Include("Parametres")
+                            .Include("Assuetudes")
+                            .FirstOrDefault(t => t.Id == id);
 
-            // TODO Vérifier ce qu'on doit faire lorsque non trouvé : objet vide ou 404 ?
             if (patientItem == null) {
                 _logger.LogWarning("Read : Patient {id} non trouvé.", id);
                 return NotFound("Patient "+id+" non trouvé.");
@@ -150,7 +161,9 @@ namespace ComparaisonRisques.Controllers
                 return BadRequest(errorList);
             }
 
+            // Mise à jour du patient et du paramètre associé 
             _context.PatientItems.Update(patientItem);
+            _context.ParametreItems.Update(new ParametreItem(patientItem));
             _context.SaveChanges();
 
             _logger.LogInformation("Update : mise à jour patient {id}.", patientItem.Id);
@@ -163,21 +176,40 @@ namespace ComparaisonRisques.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            PatientItem patientItem = _context.PatientItems.FirstOrDefault(t => t.Id == id);
+            PatientItem patientItem = _context.PatientItems
+                            .Include("Admin")
+                            .Include("Biometrie")
+                            .Include("Const_biologique")
+                            .Include("Parametres")
+                            .Include("Assuetudes")
+                            .FirstOrDefault(t => t.Id == id);
 
             // Idempotence : le Delete doit avoir le même résultat que le patient soit trouvé ou pas.
-            int patientExists = _context.PatientItems.Count(t => t.Id == id);
-            if (patientExists == 0) {
+            // int patientExists = _context.PatientItems.Count(t => t.Id == id);
+            if (patientItem == null) {
                 _logger.LogInformation("Delete : suppression du patient {id}.", id);
                 return NoContent();
             }
 
+            // Suppression du patient et du paramètre associé 
             _context.PatientItems.Remove(patientItem);
+            _context.ParametreItems.Remove(new ParametreItem(patientItem));
             _context.SaveChanges();
 
             _logger.LogInformation("Delete : suppression du patient {id}.", id);
 
             return NoContent();
         }
+
+        // La liste des paramètres disponibles (nom des propriétés) et les détails sur celle-ci (unités, min, max ..)
+        // GET: api/patient/info
+        [HttpGet("info")]
+        public IActionResult Info()
+        {
+            _logger.LogInformation("Info : paramètres disponibles (patient).");
+
+            return new ObjectResult(_context.ParametreInfos.Where( p => p.Groupe == GroupeInfo.Patient || p.Groupe == GroupeInfo.PatientEtParamètre).ToList());
+        }
+
     }
 }

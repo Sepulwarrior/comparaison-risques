@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ComparaisonRisques.Models
 {
@@ -16,20 +18,28 @@ namespace ComparaisonRisques.Models
         }
     }
 
-    public struct Admin
+    public class Admin
     {
+        [JsonIgnore]
+        [Key, ForeignKey("PatientItem")]
+        public int Id { get; set; }
+
         public string Prenom { get; set; }
         public string Nom { get; set; }
 
-        [Range(typeof(DateTime), "1/1/1930", "31/12/2017", ErrorMessage = "La date de naissance doit être comprise entre 1/1/1930 et 31/12/2017.")]
+        [Range(typeof(DateTime), "1930-01-01T00:00:00Z", "2017-12-31T00:00:00Z", ErrorMessage = "La date de naissance doit être comprise entre 1/1/1930 et 31/12/2017.")]
         public DateTime Date_de_naissance { get; set; }
 
         [GenreValide(ErrorMessage = "Le genre doit être Male ou Female.")]
         public string Genre { get; set; }
     }
 
-    public struct Biometrie
+    public class Biometrie
     {
+        [JsonIgnore]
+        [Key, ForeignKey("PatientItem")]
+        public int Id { get; set; }
+
         [Range(45,140, ErrorMessage = "Le poids doit être compris entre 45 et 140 kg.")]
         public int Poids { get; set; }
 
@@ -37,8 +47,12 @@ namespace ComparaisonRisques.Models
         public int Taille { get; set; }
     }
 
-    public struct ConstBiologique
+    public class ConstBiologique
     {
+        [JsonIgnore]
+        [Key, ForeignKey("PatientItem")]
+        public int Id { get; set; }
+
         [Range(0.05, 0.12, ErrorMessage = "La HbA1c doit être compris entre 0.05 et 0.12 ).")]
         public double HbA1c { get; set; }
 
@@ -49,20 +63,29 @@ namespace ComparaisonRisques.Models
         public int Cholesterol_HDL { get; set; }
     }
 
-    public struct Parametres
+    public class Parametres
     {
+        [JsonIgnore]
+        [Key, ForeignKey("PatientItem")]
+        public int Id { get; set; }
+
         [Range(90, 200, ErrorMessage = "La PSS doit être comprise entre 90 et 200 mmHg.")]
         public int PSS { get; set; }
     }
 
-    public struct Assuetudes
+    public class Assuetudes
     {
+        [JsonIgnore]
+        [Key,ForeignKey("PatientItem")]
+        public int Id { get; set; }
+
         [Range(0, 80, ErrorMessage = "La consommation tabagique doit être comprise entre 0 et 80 paquets par année.")]
         public int Consommation_tabagique { get; set; }
     }
 
     public class PatientItem
     {
+        [Key]
         public int Id { get; set; }
         public Admin Admin { get; set; }
         public Biometrie Biometrie { get; set; }
