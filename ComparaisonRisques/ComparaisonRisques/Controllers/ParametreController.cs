@@ -74,7 +74,8 @@ namespace ComparaisonRisques.Controllers
             List<double[]> listePoints = _context.ParametreItems
                 .OrderBy(p => p.GetType().GetProperty(abscisse).GetValue(p))
                 .GroupBy(p => p.GetType().GetProperty(abscisse).GetValue(p))
-                .Select(g => (new[] { double.Parse(g.Key.ToString()), g.Average(s => double.Parse(s.GetType().GetProperty(ordonnee).GetValue(s).ToString())) })).ToList();
+                .Select(g => (new[] { Math.Round(double.Parse(g.Key.ToString()),2),
+                        Math.Round(g.Average(s => double.Parse(s.GetType().GetProperty(ordonnee).GetValue(s).ToString())),2) })).ToList();
 
             _logger.LogInformation("LineChart : points demandé abscisse: {abscisse}, ordonnée: {ordonnee}.", abscisse, ordonnee);
 
@@ -106,7 +107,8 @@ namespace ComparaisonRisques.Controllers
             // La sortie est un tableau avec en première entrée la propiété choisie pour l'abscisse
             // et en seconde entrée la propiété choisie pour l'ordonnée
             List<double[]> listePoints = _context.ParametreItems
-                .Select(g => (new[] { double.Parse(g.GetType().GetProperty(abscisse).GetValue(g).ToString()), double.Parse(g.GetType().GetProperty(ordonnee).GetValue(g).ToString()) })).ToList();
+                .Select(g => (new[] { Math.Round(double.Parse(g.GetType().GetProperty(abscisse).GetValue(g).ToString()),2),
+                                        Math.Round(double.Parse(g.GetType().GetProperty(ordonnee).GetValue(g).ToString()),2) })).ToList();
 
             _logger.LogInformation("ScatterChart : points demandé abscisse: {abscisse}, ordonnée: {ordonnee}.", abscisse, ordonnee);
 
