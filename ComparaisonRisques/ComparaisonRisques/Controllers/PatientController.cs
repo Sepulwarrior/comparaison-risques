@@ -58,6 +58,8 @@ namespace ComparaisonRisques.Controllers
 
             // Ajout du patient et du paramètre associé 
             _context.PatientItems.Add(patientItem);
+            _context.SaveChanges();
+
             _context.ParametreItems.Add(new ParametreItem(patientItem));
             _context.SaveChanges();
 
@@ -102,7 +104,7 @@ namespace ComparaisonRisques.Controllers
                 patientItems = patientItems.Take(limitInt).ToList();
             }
             
-            _logger.LogInformation("Read : Liste des patients ({count})" + (search == null ? "" : " recherche : " + search) + (limitInt == 0 ? "" : " limite : " + limitInt) +".", patientItems.Count());
+            _logger.LogInformation("Read : Liste des patients ({count})" + (search == "" ? "" : " recherche : " + search) + (limitInt == 0 ? "" : " limite : " + limitInt) +".", patientItems.Count());
             return new ObjectResult(patientItems);
         }
 

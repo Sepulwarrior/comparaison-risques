@@ -3,7 +3,7 @@
   <PropertyGroup Label="Globals">
     <ProjectVersion>2.0</ProjectVersion>
     <DockerTargetOS>Windows</DockerTargetOS>
-    <ProjectGuid>713d6836-ebdb-4b2a-a2db-1229c1360faa</ProjectGuid>
+    <ProjectGuid>24783ab4-bcef-4ad2-8889-f7ab249a80c0</ProjectGuid>
     <DockerLaunchBrowser>True</DockerLaunchBrowser>
     <DockerServiceUrl>http://{ServiceIPAddress}/api/patient</DockerServiceUrl>
     <DockerServiceName>comparaisonrisques</DockerServiceName>
