@@ -27,6 +27,7 @@ namespace ComparaisonRisquesTests
 
             _loggerTest = loggerTest;
             _contextTest = new MyContext(new DbContextOptionsBuilder<MyContext>().UseInMemoryDatabase("CompaRisquesTest").Options);
+            _contextTest.EnsureSeeded();
             _crontrollerTest = new PatientController(loggerTest, _contextTest);
         }
 
@@ -35,6 +36,7 @@ namespace ComparaisonRisquesTests
         {
             // Utilisation d'un DBContext isolé pour les opérations modifiant la base de donnée
             var testContext = new MyContext(new DbContextOptionsBuilder<MyContext>().UseInMemoryDatabase("CompaRisquesTest").Options);
+            testContext.EnsureSeeded();
             var testPatientController = new PatientController(_loggerTest, testContext);
 
             string jsonData = "{'id':0," +
@@ -73,6 +75,7 @@ namespace ComparaisonRisquesTests
 
             // Utilisation d'un DBContext isolé pour les opérations modifiant la base de donnée
             var testContext = new MyContext(new DbContextOptionsBuilder<MyContext>().UseInMemoryDatabase("CompaRisquesTest").Options);
+            testContext.EnsureSeeded();
             var testPatientController = new PatientController(_loggerTest, testContext);
 
             string jsonData = "{'id':0,"+
@@ -92,14 +95,16 @@ namespace ComparaisonRisquesTests
         [Test]
         public void PatientControllerReadOk()
         {
-            var retour = _crontrollerTest.Read("a",2);
-            Assert.That(typeof(List<PatientItem>), Is.EqualTo(retour.GetType()));
+            var retour = _crontrollerTest.Read("a","2");
+            Assert.That(typeof(ObjectResult), Is.EqualTo(retour.GetType()));
         }
 
         [Test]
         public void PatientControllerReadIdOk()
         {
+
             var retour = _crontrollerTest.Read(163);
+            
             Assert.That(typeof(ObjectResult), Is.EqualTo(retour.GetType()));
         }
 
@@ -109,6 +114,7 @@ namespace ComparaisonRisquesTests
 
             // Utilisation d'un DBContext isolé pour les opérations modifiant la base de donnée
             var testContext = new MyContext(new DbContextOptionsBuilder<MyContext>().UseInMemoryDatabase("CompaRisquesTest").Options);
+            testContext.EnsureSeeded();
             var testPatientController = new PatientController(_loggerTest, testContext);
 
             string jsonData = "{'id':5," +
