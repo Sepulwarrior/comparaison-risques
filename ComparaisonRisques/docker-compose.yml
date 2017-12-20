@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  comparaisonrisques:
+    image: comparaisonrisques
+    build:
+      context: .
+      dockerfile: ComparaisonRisques\Dockerfile

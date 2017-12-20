@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComparaisonRisques", "Compa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComparaisonRisquesTests", "..\ComparaisonRisquesTests\ComparaisonRisquesTests.csproj", "{310F2CF0-1D30-4861-86A9-1DCD63F0A549}"
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{713D6836-EBDB-4B2A-A2DB-1229C1360FAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{310F2CF0-1D30-4861-86A9-1DCD63F0A549}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{310F2CF0-1D30-4861-86A9-1DCD63F0A549}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{310F2CF0-1D30-4861-86A9-1DCD63F0A549}.Release|Any CPU.Build.0 = Release|Any CPU
+		{713D6836-EBDB-4B2A-A2DB-1229C1360FAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{713D6836-EBDB-4B2A-A2DB-1229C1360FAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{713D6836-EBDB-4B2A-A2DB-1229C1360FAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{713D6836-EBDB-4B2A-A2DB-1229C1360FAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
