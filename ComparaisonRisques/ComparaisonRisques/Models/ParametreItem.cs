@@ -27,11 +27,11 @@ namespace ComparaisonRisques.Models
         /// <param name="patientItem">Fiche patient</param>
         public ParametreItem(PatientItem patientItem) {
             Id = patientItem.Id;
-            Age = (DateTime.Now- patientItem.Admin.Date_de_naissance).Days / 365;
-            BMI = (int)Math.Round(patientItem.Biometrie.Poids / Math.Pow(patientItem.Biometrie.Taille/100.0,2));
+            Age = patientItem.Admin.Age;
+            BMI = patientItem.Biometrie.BMI;
             HbA1c = patientItem.Const_biologique.HbA1c;
             Cholesterol_total = patientItem.Const_biologique.Cholesterol_total;
-            Cholesterol_HDC = patientItem.Const_biologique.Cholesterol_total- patientItem.Const_biologique.Cholesterol_HDL;
+            Cholesterol_HDC = patientItem.Const_biologique.Cholesterol_HDC;
             PSS = patientItem.Parametres.PSS;
             Consommation_tabagique = patientItem.Assuetudes.Consommation_tabagique;
         }

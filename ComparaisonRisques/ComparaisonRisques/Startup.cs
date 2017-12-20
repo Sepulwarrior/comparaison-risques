@@ -23,6 +23,7 @@ namespace ComparaisonRisques
         {
             Configuration = configuration;
 
+            // Démarrage de la base de donnée SQLite
             using (var client = new MyContext(new DbContextOptionsBuilder<MyContext>().UseSqlite("Filename=data/comparaison-risques.db").Options))
             {
                 client.Database.EnsureCreated();
@@ -38,13 +39,12 @@ namespace ComparaisonRisques
         {
 
             services.AddCors();
-            //services.AddDbContext<MyContext>(opt => opt.UseInMemoryDatabase("comparaison-risques"));
             services.AddDbContext<MyContext>(opt => opt.UseSqlite("Filename=data/comparaison-risques.db"));
-
-            services.AddMvc();
 
             // Définition du document Swagger
             services.AddSwaggerGen(c => c.SwaggerDoc("prototype", new Info { Title = "API de comparaison des risques", Version = "prototype" }));
+
+            services.AddMvc();
 
         }
 
@@ -56,7 +56,7 @@ namespace ComparaisonRisques
                 app.UseDeveloperExceptionPage();
             }
 
-            // Fichers logs
+            // Définition de l'emplacement des fichers logs
             loggerFactory.AddFile("log/comparaison-riques_{Date}.txt");
 
             // Pour éviter le blocage des requêtes multiorigines (client test en local)

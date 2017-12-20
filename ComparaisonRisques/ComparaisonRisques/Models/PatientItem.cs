@@ -27,11 +27,18 @@ namespace ComparaisonRisques.Models
         public string Prenom { get; set; }
         public string Nom { get; set; }
 
+        // Mettre la date sous format ISO 8601, le format mis à l'origine (31/12/2017) prête à confusion au niveau jour<>mois
         [Range(typeof(DateTime), "1930-01-01T00:00:00Z", "2017-12-31T00:00:00Z", ErrorMessage = "La date de naissance doit être comprise entre 1/1/1930 et 31/12/2017.")]
         public DateTime Date_de_naissance { get; set; }
 
         [GenreValide(ErrorMessage = "Le genre doit être Male ou Female.")]
         public string Genre { get; set; }
+
+        // Champ calculé : Age
+        [JsonIgnore]
+        [NotMapped]
+        public int Age { get { return (DateTime.Now - Date_de_naissance).Days / 365; } }
+
     }
 
     public class Biometrie
@@ -40,11 +47,17 @@ namespace ComparaisonRisques.Models
         [Key, ForeignKey("PatientItem")]
         public int Id { get; set; }
 
-        [Range(45,140, ErrorMessage = "Le poids doit être compris entre 45 et 140 kg.")]
+        [Range(45, 140, ErrorMessage = "Le poids doit être compris entre 45 et 140 kg.")]
         public int Poids { get; set; }
 
         [Range(155, 195, ErrorMessage = "La taille doit être comprise entre 155 et 195 cm.")]
         public int Taille { get; set; }
+
+        // Champ calculé : BMI (IMC) = poids / taille ²
+        [JsonIgnore]
+        [NotMapped]
+        public int BMI { get { return (int)Math.Round(Poids / Math.Pow(Taille / 100.0, 2)); }}
+
     }
 
     public class ConstBiologique
@@ -61,6 +74,12 @@ namespace ComparaisonRisques.Models
 
         [Range(20, 100, ErrorMessage = "Le cholesterol HDL doit être compris entre 20 et 100 mg/dl).")]
         public int Cholesterol_HDL { get; set; }
+
+        // Champ calculé : Cholesterol, Total = HDC + HDL
+        [JsonIgnore]
+        [NotMapped]
+        public int Cholesterol_HDC { get { return Cholesterol_total - Cholesterol_HDL; } }
+
     }
 
     public class Parametres

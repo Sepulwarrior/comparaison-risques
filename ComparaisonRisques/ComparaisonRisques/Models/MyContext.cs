@@ -19,7 +19,9 @@ namespace ComparaisonRisques.Models
         public DbSet<ParametreItem> ParametreItems { get; set; }
         public DbSet<ParametreInfo> ParametreInfos { get; set; }
 
-        // Setup des données 
+        /// <summary>
+        /// Insertion des données lors de la création d'une nouvelle DB
+        /// </summary>
         public void EnsureSeeded()
         {
 
