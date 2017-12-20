@@ -2,7 +2,7 @@
 	<head>
 		<style>
 			body{background-color:#E9F2F7;}
-			#main {width: 90%;height: 90%;background-color: #00ABC4;}
+			#main {width: 90%;height: 95%;background-color: #00ABC4;border-radius:21px;}
 			div {text-align:center;margin:0 auto;}
 			button{margin:5px;padding:3px;width:100px;}
 			select{width:300px;display:block;margin: 9px auto;padding:3px;}
@@ -15,6 +15,11 @@
 	</head>
 	<body>
 		<div id="main">
+		
+		<label id="url_label" for="base_url">URL de base : </label>
+		<input type="text" id="base_url" placeholder="localhost">
+		<button onclick="changeBaseURL()">SET</button>
+		
 			<div id="choice_block">
 				<button onclick="showSearch()">Fiches patient</button>
 				<button onclick="showGraph()">Statistiques</button>

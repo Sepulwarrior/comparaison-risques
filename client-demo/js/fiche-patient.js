@@ -1,5 +1,12 @@
 
-var base_URL = 'http://172.25.84.195/api/';
+var base_URL = 'http://172.25.93.99/api/';
+var parms;
+
+function changeBaseURL(){
+	base_URL='http://'+document.getElementById("base_url").value+'/api/';
+	document.getElementById("url_label").innerHTML=base_URL;
+}
+
 	
 function sendRequest(callback,URL="",method="GET",body=null) {
     var xhr = new XMLHttpRequest();
@@ -297,6 +304,7 @@ function returnToSearch(){
 	document.getElementById("search_block").style.display = "block";
 }
 function returnTochoice(){
+		
 	document.getElementById("info_block").innerHTML="";
 	document.getElementById("search_block").innerHTML="";
 	document.getElementById("search_block").style.display = "none";
@@ -307,8 +315,8 @@ function returnTochoice(){
 	document.getElementById("choice_block").style.display = "block";
 }
 
-var abscisse="Age";
-var ordonnee="BMI";
+var abscisse="age";
+var ordonnee="bmi";
 var graphtype="scatter_chart";
 google.charts.load('current', {'packages':['corechart']});
 	
@@ -322,22 +330,33 @@ function loadGraphResponse(){
 	retchoice.innerHTML="Retour";
 	document.getElementById("graph_block").appendChild(retchoice);
 		
+	
+	parms = JSON.parse(this.responseText);
+
 	var selectAbscisse = document.createElement("select");
-	var obj = JSON.parse(this.responseText);
-	console.log(obj);
-	obj.forEach(function(param) {
+	parms.forEach(function(param) {
 		var opt = document.createElement('option');
-		opt.value = param;
-		opt.innerHTML = param;
+		opt.value = param.nom;
+		opt.innerHTML = param.titre;
+		if(abscisse==param.nom){
+			opt.selected=true;
+		}
 		selectAbscisse.appendChild(opt);
 	});
-	
-	var selectOrdonnee = selectAbscisse.cloneNode(true);
-	
-	selectAbscisse.onchange=function(){ abscisse=this.value;console.log("abscisse="+abscisse);drawChartSend();	 };
-	selectOrdonnee.onchange=function(){ ordonnee=this.value;console.log("ordonnee="+ordonnee);drawChartSend();	 };
-
+	selectAbscisse.onchange=function(){ abscisse=this.value;drawChartSend();};
 	document.getElementById("graph_block").appendChild(selectAbscisse);
+	
+	var selectOrdonnee = document.createElement("select");
+	parms.forEach(function(param) {
+		var opt = document.createElement('option');
+		opt.value = param.nom;
+		opt.innerHTML = param.titre;
+		if(ordonnee==param.nom){
+			opt.selected=true;
+		}
+		selectOrdonnee.appendChild(opt);
+	});
+	selectOrdonnee.onchange=function(){ ordonnee=this.value;drawChartSend();};
 	document.getElementById("graph_block").appendChild(selectOrdonnee);
 	
 	var selectGraphType = document.createElement("select");
@@ -352,14 +371,14 @@ function loadGraphResponse(){
 	optLineChart.innerHTML = "LineChart";
 	selectGraphType.appendChild(optLineChart);
 	
-	selectGraphType.onchange=function(){ graphtype=this.value;console.log("graphtype="+graphtype);drawChartSend();	 };
+	selectGraphType.onchange=function(){ graphtype=this.value;drawChartSend();	 };
 	
 	document.getElementById("graph_block").appendChild(selectGraphType);
 			
 	var chart_div = document.createElement("div");
 	chart_div.id="chart_div";
 	chart_div.style.width="90%";
-	chart_div.style.height="80%";
+	chart_div.style.height="70%";
 	document.getElementById("graph_block").appendChild(chart_div);
 	
 	drawChartSend();				
@@ -373,8 +392,37 @@ function drawChartResponse() {
   	
 	var obj = JSON.parse(this.responseText);
 	
+	var abscisseTitre = "";
+	var abscisseMin = "";
+	var abscisseMax = "";
+	var ordonneeTitre = "";
+	var ordonneeMin = "";
+	var ordonneeMax = "";
+	
+	parms.forEach(function(param) {
+
+		if(param.nom==abscisse){
+					
+			abscisseTitre=param.titre+" ( "+param.unite+" ) ";
+			abscisseMin=param.min;
+			abscisseMax=param.max;
+		}
+		if(param.nom==ordonnee){
+					
+			ordonneeTitre=param.titre+" ( "+param.unite+" ) ";
+			ordonneeMin=param.min;
+			ordonneeMax=param.max;
+		}
+
+	});
+	
 	var data = google.visualization.arrayToDataTable(obj, true);
-	var options = { title: 'Comparaison des risques', hAxis: {title: abscisse},vAxis: {title: ordonnee}};
+	var options = { title: 'Comparaison des risques', 		hAxis: {title: abscisseTitre,
+															viewWindowMode: 'explicit', viewWindow: { min : abscisseMin, max : abscisseMax }},
+															vAxis: {title: ordonneeTitre, 
+															viewWindowMode: 'explicit', viewWindow: { min : ordonneeMin, max : ordonneeMax }}};
+	
+	console.log(options)
 
 	//ScatterChart
 	//LineChart
