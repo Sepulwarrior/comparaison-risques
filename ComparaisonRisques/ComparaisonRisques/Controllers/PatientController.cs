@@ -37,7 +37,7 @@ namespace ComparaisonRisques.Controllers
             }
 
             // Vérifie que l'Id est 0 pour l'auto-incrément
-            if (patientItem.Id == 0)
+            if (patientItem.Id != 0)
             { 
                 _logger.LogWarning("Create : Id doit être égal à 0.");
                 return BadRequest("Id doit être égal à 0.");
