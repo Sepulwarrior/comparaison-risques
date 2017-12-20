@@ -57,7 +57,7 @@ namespace ComparaisonRisques
             }
 
             // Définition de l'emplacement des fichers logs
-            loggerFactory.AddFile("log/comparaison-riques_{Date}.txt");
+            loggerFactory.AddFile("log/comparaison-risques_{Date}.txt");
 
             // Pour éviter le blocage des requêtes multiorigines (client test en local)
             app.UseCors(builder => builder  .AllowAnyOrigin()

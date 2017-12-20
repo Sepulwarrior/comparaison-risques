@@ -33,12 +33,17 @@ namespace ComparaisonRisques.Models
                     string jsonData = System.IO.File.ReadAllText(@"data/mock_data.json");
 
                     List<PatientItem> patientItems = JsonConvert.DeserializeObject<List<PatientItem>>(jsonData);
-                    List<ParametreItem> parametreItems = patientItems.Select(p => new ParametreItem(p)).ToList();
+
+                    // Réinitialise l'Id pour maintenir l'auti-incrément activé
+                    patientItems.ForEach(p => p.Id = 0);
 
                     PatientItems.AddRange(patientItems);
-                    ParametreItems.AddRange(parametreItems);
-
                     SaveChanges();
+
+                    // Sauve les patients avant les paramètres pour générer les Id's 
+                    ParametreItems.AddRange(PatientItems.Select(p=>new ParametreItem(p)));
+                    SaveChanges();
+
                 }
             }
 

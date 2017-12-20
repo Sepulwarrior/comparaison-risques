@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using ComparaisonRisques.Models;
 using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 namespace ComparaisonRisques.Controllers
 {
@@ -53,14 +54,14 @@ namespace ComparaisonRisques.Controllers
         {
             
             // Vérifie l'existence de l'abscisse
-            if (((new ParametreItem().GetType()).GetProperties()).Where(p => p.Name != "Id" && p.Name == abscisse).Count()==0)
+            if (((new ParametreItem().GetType()).GetProperties()).Where(p => p.Name != "Id" && p.Name.ToLower() == abscisse.ToLower()).Count()==0)
             {
                 _logger.LogWarning("LineChart : Abscisse {ordonnee} n'éxiste pas.", abscisse);
                 return BadRequest("Abscisse : " + abscisse + " n'éxiste pas.");
             }
-
+            // 
             // Vérifie l'existence de l'ordonnée
-            if (new ParametreItem().GetType().GetProperty(ordonnee) == null)
+            if (((new ParametreItem().GetType()).GetProperties()).Where(p => p.Name != "Id" && p.Name.ToLower() == ordonnee.ToLower()).Count() == 0)
             {
                 _logger.LogWarning("LineChart : Ordonnee {ordonnee} n'éxiste pas.", ordonnee);
                 return BadRequest("Ordonnee : " + ordonnee + " n'éxiste pas.");
@@ -72,12 +73,12 @@ namespace ComparaisonRisques.Controllers
             // La sortie est un tableau avec en première entrée la propiété choisie pour l'abscisse
             // et en seconde entrée une moyenne de la propiété choisie pour l'ordonnée
             List<double[]> listePoints = _context.ParametreItems
-                .OrderBy(p => p.GetType().GetProperty(abscisse).GetValue(p))
-                .GroupBy(p => p.GetType().GetProperty(abscisse).GetValue(p))
+                .OrderBy(p => p.GetType().GetProperty(abscisse, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(p))
+                .GroupBy(p => p.GetType().GetProperty(abscisse, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(p))
                 .Select(g => (new[] { Math.Round(double.Parse(g.Key.ToString()),2),
-                        Math.Round(g.Average(s => double.Parse(s.GetType().GetProperty(ordonnee).GetValue(s).ToString())),2) })).ToList();
+                        Math.Round(g.Average(s => double.Parse(s.GetType().GetProperty(ordonnee,BindingFlags.IgnoreCase |  BindingFlags.Public | BindingFlags.Instance).GetValue(s).ToString())),2) })).ToList();
 
-            _logger.LogInformation("LineChart : points demandé abscisse: {abscisse}, ordonnée: {ordonnee}.", abscisse, ordonnee);
+            _logger.LogInformation("LineChart : points demandés abscisse: {abscisse}, ordonnée: {ordonnee}.", abscisse, ordonnee);
 
             return new ObjectResult(listePoints);
 
@@ -90,14 +91,14 @@ namespace ComparaisonRisques.Controllers
         public IActionResult ScatterChart(string abscisse, string ordonnee)
         {
             // Vérifie l'existence de l'abscisse
-            if (new ParametreItem().GetType().GetProperty(abscisse) == null)
+            if (((new ParametreItem().GetType()).GetProperties()).Where(p => p.Name != "Id" && p.Name.ToLower() == abscisse.ToLower()).Count() == 0)
             {
                 _logger.LogWarning("ScatterChart : Abscisse {ordonnee} n'éxiste pas.", abscisse);
                 return BadRequest("Abscisse : " + abscisse + " n'éxiste pas.");
             }
 
             // Vérifie l'existence de l'ordonnée
-            if (new ParametreItem().GetType().GetProperty(ordonnee) == null)
+            if (((new ParametreItem().GetType()).GetProperties()).Where(p => p.Name != "Id" && p.Name.ToLower() == ordonnee.ToLower()).Count() == 0)
             {
                 _logger.LogWarning("ScatterChart : Ordonnee {ordonnee} n'éxiste pas.", ordonnee);
                 return BadRequest("Ordonnee : " + ordonnee + " n'éxiste pas.");
@@ -107,10 +108,10 @@ namespace ComparaisonRisques.Controllers
             // La sortie est un tableau avec en première entrée la propiété choisie pour l'abscisse
             // et en seconde entrée la propiété choisie pour l'ordonnée
             List<double[]> listePoints = _context.ParametreItems
-                .Select(g => (new[] { Math.Round(double.Parse(g.GetType().GetProperty(abscisse).GetValue(g).ToString()),2),
-                                        Math.Round(double.Parse(g.GetType().GetProperty(ordonnee).GetValue(g).ToString()),2) })).ToList();
+                .Select(g => (new[] { Math.Round(double.Parse(g.GetType().GetProperty(abscisse, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(g).ToString()),2),
+                                        Math.Round(double.Parse(g.GetType().GetProperty(ordonnee, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(g).ToString()),2) })).ToList();
 
-            _logger.LogInformation("ScatterChart : points demandé abscisse: {abscisse}, ordonnée: {ordonnee}.", abscisse, ordonnee);
+            _logger.LogInformation("ScatterChart : points demandés abscisse: {abscisse}, ordonnée: {ordonnee}.", abscisse, ordonnee);
 
             return new ObjectResult(listePoints);
 

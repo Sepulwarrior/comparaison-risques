@@ -36,15 +36,9 @@ namespace ComparaisonRisques.Controllers
                 return BadRequest("Patient vide ou incomplet.");
             }
 
-            // l'auto-incrément fonctionne lorsque la base de donnée est vide.
-            // avec l'insertion des données de tests, il tente de créer la première entité avec l'Id 1 ( les 500 premiers existent )
-            // j'ai donc contourné l'auto-incrément en faisant max+1 ci dessous
+            // Vérifie que l'Id est 0 pour l'auto-incrément
             if (patientItem.Id == 0)
-            {
-                patientItem.Id = _context.PatientItems.Max(t => t.Id) + 1;
-            }
-            else
-            {
+            { 
                 _logger.LogWarning("Create : Id doit être égal à 0.");
                 return BadRequest("Id doit être égal à 0.");
             }
