@@ -23,6 +23,10 @@ namespace ComparaisonRisques
         {
             Configuration = configuration;
 
+            // Création des répertoires si non éxistant (docker ne les met pas forcément dans l'image)
+            if (!System.IO.Directory.Exists("data")) { System.IO.Directory.CreateDirectory("data"); }
+            if (!System.IO.Directory.Exists("log")) { System.IO.Directory.CreateDirectory("log"); }
+
             // Démarrage de la base de donnée SQLite
             using (var client = new MyContext(new DbContextOptionsBuilder<MyContext>().UseSqlite("Filename=data/comparaison-risques.db").Options))
             {
