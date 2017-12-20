@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  comparaisonrisques:
+    image: sepulwarrior/comparaisonrisques:prototype-linux
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    ports:
+      - "80"
