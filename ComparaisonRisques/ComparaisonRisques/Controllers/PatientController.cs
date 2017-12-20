@@ -75,7 +75,7 @@ namespace ComparaisonRisques.Controllers
         // Le R du CRUD : Renvoie toute les entités
         // GET: api/patient
         [HttpGet]
-        public IEnumerable<PatientItem> Read(string search="", int limit=0)
+        public IActionResult Read(string search="", string limit="0")
         {
             var p = _context.ParametreInfos;
 
@@ -87,20 +87,29 @@ namespace ComparaisonRisques.Controllers
                 .Include("Assuetudes")
                 .ToList();
 
+            // Vérifie si la limite est un entier
+            int limitInt;
+            bool limitIsInt = Int32.TryParse(limit, out limitInt);
+            if (!limitIsInt)
+            {
+                _logger.LogWarning("Read : la limite n'est pas un entier ({limit}).", limit);
+                return BadRequest("Read : la limite n'est pas un entier ("+ limit + ").");
+            }
+
             // Filtre sur le Nom
             if (search != "")
             {
                 patientItems = patientItems.Where(t => t.Admin.Nom.ToLower().StartsWith(search.ToLower())).ToList();
             }
 
-            // Limite ne nombre d'entrées
-            if (limit != 0)
+            // Limite le nombre d'entrées
+            if (limitInt != 0)
             {
-                patientItems = patientItems.Take(limit).ToList();
+                patientItems = patientItems.Take(limitInt).ToList();
             }
             
-            _logger.LogInformation("Read : Liste des patients ({count})" + (search == null ? "" : " recherche : " + search) + (limit == 0 ? "" : " limite : " + limit)+".", patientItems.Count());
-            return patientItems;
+            _logger.LogInformation("Read : Liste des patients ({count})" + (search == null ? "" : " recherche : " + search) + (limitInt == 0 ? "" : " limite : " + limitInt) +".", patientItems.Count());
+            return new ObjectResult(patientItems);
         }
 
         // Le R du CRUD : Avec ID, renvoie l'entité demandée
