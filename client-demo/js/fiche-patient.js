@@ -1,13 +1,14 @@
 
-var base_URL = 'http://172.25.93.99/api/';
+var base_URL = 'http://172.25.84.94/api/';
 var parms;
 
+// Modifie l'URL de base
 function changeBaseURL(){
 	base_URL='http://'+document.getElementById("base_url").value+'/api/';
 	document.getElementById("url_label").innerHTML=base_URL;
 }
 
-	
+// Fct envoyant les requêtes à l'API
 function sendRequest(callback,URL="",method="GET",body=null) {
     var xhr = new XMLHttpRequest();
     xhr.callback = callback;
@@ -19,7 +20,6 @@ function sendRequest(callback,URL="",method="GET",body=null) {
     xhr.send(body);
 }
 function xhrSuccess() { 
-	console.log(this.statusText+' '+this.responseText); 
     if (this.status==200 || this.status==204){
 		document.getElementById("info_block").innerHTML="";
 		this.callback.apply(this, this.arguments); 
@@ -32,6 +32,7 @@ function xhrError() {
 	console.log(this.statusText+' '+this.responseText); 
 }
 	
+// Recherche de patient
 function searchSend(){
 	sendRequest(searchResponse,base_URL+'patient?search='+document.getElementById("search").value+'&limit=5','GET');
 }
@@ -40,6 +41,7 @@ function searchResponse(){
 	document.getElementById("result").innerHTML="";
 	obj.forEach(function(patient) {
 				var div = document.createElement("div");
+				div.className += "formu";
 				var label = document.createElement("label");
 				label.innerHTML = patient.admin.nom+" "+patient.admin.prenom;
 				div.appendChild(label);
@@ -51,6 +53,7 @@ function searchResponse(){
 		});
 }
 
+// Suppression d'un patient
 function deleteSend(id){
 	sendRequest(deleteResponse,base_URL+'patient/'+id,'DELETE');
 }
@@ -60,6 +63,7 @@ function deleteResponse(){
 	document.getElementById("info_block").style.backgroundColor="#00FF00";
 }
 
+// Mise à jour d'un patient
 function updateSend(id){
 		
 	var form = document.getElementsByTagName("form");
@@ -87,7 +91,6 @@ function updateSend(id){
 	}
 
 	var formdata = JSON.stringify(formData);
-	console.log(formdata)
 
 	sendRequest(updateResponse,base_URL+'patient/'+id,'PUT',formdata);
 }
@@ -96,12 +99,14 @@ function updateResponse(){
 	document.getElementById("info_block").innerHTML="Mise à jour OK";
 	document.getElementById("info_block").style.backgroundColor="#00FF00";
 }
-		
+	
+// Création d'un patient	
 function createSend(){
 		
 	var form = document.getElementsByTagName("form");
 	var inputs = form[0].getElementsByTagName("input");
 
+	// L'objet patient d'origine est reconstruit sur base du formulaire
 	var formData = {};
 	for(var i=0; i< inputs.length; i++){
 		
@@ -124,7 +129,6 @@ function createSend(){
 	}
 
 	var formdata = JSON.stringify(formData);
-	console.log(formdata)
 
 	sendRequest(createResponse,base_URL+'patient/','POST',formdata);
 }
@@ -133,7 +137,8 @@ function createResponse(){
 	document.getElementById("info_block").innerHTML="Creation OK";
 	document.getElementById("info_block").style.backgroundColor="#00FF00";
 }
-		
+
+// Crée le formulaire d'édition		
 function editSend(id){
 
 	document.getElementById("search_block").style.display = "none";
@@ -150,10 +155,12 @@ function editResponse(){
 			
 	form=document.createElement("form");
 		
+	// Le formulaire est créé à la volée sur base de la structure de l'objet patient	
 	for (var prop1 in obj) {
 		if (typeof(obj[prop1])=='object'){
 			for (var prop2 in obj[prop1]) {
 				var div = document.createElement("div");
+				div.className += "formu";
 				var label = document.createElement("label");
 				label.for = prop1+'.'+prop2;
 				label.innerHTML = prop2;
@@ -167,19 +174,23 @@ function editResponse(){
 				form.appendChild(div);
 			}
 		}else{
+			var div = document.createElement("div");
+			div.className += "formu";
 			var label = document.createElement("label");
 			label.for = prop1;
 			label.innerHTML = prop1;
-			form.appendChild(label);
+			div.appendChild(label);
 			var input = document.createElement("input");
 			input.type = "text";
 			input.id = prop1;
 			input.name = prop1;
 			input.value = obj[prop1];
 			input.disabled = true;
-			form.appendChild(input);
+			div.appendChild(input);
+			form.appendChild(div);
 		}	
 	}
+	infoSend()
 	document.getElementById("edit_block").appendChild(form);
 	
 	updateButton=document.createElement("button");
@@ -199,6 +210,34 @@ function editResponse(){
 
 }
 
+// Mise à jour des titres en utilisant la fonction info de patient
+function infoSend(){
+	sendRequest(infoResponse,base_URL+'patient/info','GET');
+}
+function infoResponse(){
+
+	var infos = JSON.parse(this.responseText);
+	var form = document.getElementsByTagName("form");
+	var inputs = form[0].getElementsByTagName("input");
+	var labels = form[0].getElementsByTagName("label");
+	
+	for(var i=0; i< labels.length; i++){
+		for(var j=0; j< infos.length; j++){
+			if (labels[i].for.indexOf(".")>-1){
+				if(infos[j].parent+"."+infos[j].nom==labels[i].for){
+					labels[i].innerHTML=infos[j].titre;
+				}
+			}else{
+				if(infos[j].parent+"."+infos[j].nom==labels[i].for){
+					labels[i].innerHTML=infos[j].titre;
+				}
+			}
+		}
+	}
+	
+}
+
+// Crée le formulaire pour la création d'un patient
 function newSend(){
 
 	document.getElementById("search_block").style.display = "none";
@@ -211,17 +250,16 @@ function newSend(){
 }
 function newResponse(){	
 	
-	console.log(this.responseText);
-	
 	var obj = JSON.parse(this.responseText);
 	obj=obj[0];
 
+	// Le formulaire est créé à la volée sur base de la structure de l'objet patient
 	form=document.createElement("form");
-		
 	for (var prop1 in obj) {
 		if (typeof(obj[prop1])=='object'){
 			for (var prop2 in obj[prop1]) {	
 				var div = document.createElement("div");
+				div.className += "formu";
 				var label = document.createElement("label");
 				label.for = prop1+'.'+prop2;
 				label.innerHTML = prop2;
@@ -236,20 +274,23 @@ function newResponse(){
 				form.appendChild(div);
 			}
 		}else{
+			var div = document.createElement("div");
+			div.className += "formu";
 			var label = document.createElement("label");
 			label.for = prop1;
 			label.innerHTML = prop1;
-			form.appendChild(label);
+			div.appendChild(label);
 			var input = document.createElement("input");
 			input.type = "text";
 			input.id = prop1;
 			input.name = prop1;
 			input.value = 0;
 			input.disabled = true;
-			form.appendChild(input);
+			div.appendChild(input);
+			form.appendChild(div);
 		}	
 	}		
-	
+	infoSend()
 	document.getElementById("edit_block").appendChild(form);
 
 	createButton=document.createElement("button");
@@ -264,6 +305,7 @@ function newResponse(){
 
 }
 	
+// Fonctions de navigation
 function showGraph(){
 	document.getElementById("info_block").innerHTML="";
 	document.getElementById("choice_block").style.display = "none";
@@ -320,6 +362,7 @@ var ordonnee="bmi";
 var graphtype="scatter_chart";
 google.charts.load('current', {'packages':['corechart']});
 	
+// Crée la page des graphiques sur base de la fonction info de parametre
 function loadGraphSend(){
 	sendRequest(loadGraphResponse,base_URL+'parametre/info','GET');
 }
@@ -378,13 +421,14 @@ function loadGraphResponse(){
 	var chart_div = document.createElement("div");
 	chart_div.id="chart_div";
 	chart_div.style.width="90%";
-	chart_div.style.height="70%";
+	chart_div.style.height="calc( 85% - 160px ) ";
 	document.getElementById("graph_block").appendChild(chart_div);
 	
 	drawChartSend();				
 
 }
 
+// Création du graphique avec Google Chart utilisant les fonctions graphique de paramètre
 function drawChartSend() {
 	sendRequest(drawChartResponse,base_URL+'parametre/'+graphtype+'/'+abscisse+'/'+ordonnee,'GET');	
 }
@@ -421,11 +465,7 @@ function drawChartResponse() {
 															viewWindowMode: 'explicit', viewWindow: { min : abscisseMin, max : abscisseMax }},
 															vAxis: {title: ordonneeTitre, 
 															viewWindowMode: 'explicit', viewWindow: { min : ordonneeMin, max : ordonneeMax }}};
-	
-	console.log(options)
 
-	//ScatterChart
-	//LineChart
 	if(graphtype=="line_chart"){
 		var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
 	}else{

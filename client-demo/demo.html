@@ -2,12 +2,13 @@
 	<head>
 		<style>
 			body{background-color:#E9F2F7;}
-			#main {width: 90%;height: 95%;background-color: #00ABC4;border-radius:21px;}
-			div {text-align:center;margin:0 auto;}
-			button{margin:5px;padding:3px;width:100px;}
-			select{width:300px;display:block;margin: 9px auto;padding:3px;}
-			input{width:200px;margin: 9px auto;padding:3px;text-align: center;}
-			label {display: inline-block;width: 200px;text-align: center;margin: 9px;background-color: #E3F6FA;padding:3px;}​
+			#main {width: 90%;height: 95%;background: linear-gradient(#1094BB, #13B0CF);border-radius:21px;}
+			div {text-align:center;margin:0 auto;vertical-align: middle;}
+			.formu {display: flex;justify-content: center;}
+			button{margin:7px;padding:7px;width:200px;background: linear-gradient(#004B93, #006EC3);color: white;font-size: 17px;border: none;height:30px;}
+			select{width:300px;display:block;margin: 9px auto;height:30px;line-height: 30px;}
+			input{width:200px;height:30px;margin: 9px;text-align: center;display:inline-block;font-size: 17px;}
+			label {height:30px;display: inline-block;width: 200px;text-align: center;margin: 9px;background-color: #E3F6FA;display:inline-block;font-size: 17px;vertical-align: middle;line-height: 30px;}​
 		</style>
 		<!-- Google Chart-->
 		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -16,10 +17,11 @@
 	<body>
 		<div id="main">
 		
-		<label id="url_label" for="base_url">URL de base : </label>
-		<input type="text" id="base_url" placeholder="localhost">
-		<button onclick="changeBaseURL()">SET</button>
-		
+			<div id="url_block" class="formu">
+				<label id="url_label" for="base_url">URL de base : </label>
+				<input type="text" id="base_url" placeholder="localhost">
+				<button onclick="changeBaseURL()">SET</button>
+			</div>
 			<div id="choice_block">
 				<button onclick="showSearch()">Fiches patient</button>
 				<button onclick="showGraph()">Statistiques</button>
