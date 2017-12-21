@@ -22,6 +22,32 @@ comparer deux paramètres choisis sous forme de graphique. Les données sont opt
 être utilisées avec Google Chart mais peuvent facilement s’adapter à n’importe quel outil
 générant des graphiques.
 
+## Divers
+
+.NET Core 2.0
+
+Visual Studio 2017
+
+Template Web API 
+
+Dans le répertoire "ComparaisonRisques" le projet en lui même
+
+Dans le répertoire "ComparaisonRisquesTests" le projet des tests unitaires
+
+## Installation
+
+Via Docker Hub : sepulwarrior/comparaisonrisques
+
+Tags disponibles : prototype-windows, prototype-linux
+
+Documentation sur l'installation disponible dans le répertoire "documentation"
+
+## Client de démo 
+
+Un client de démonstaration développé en HTML/Javascript utilisant Google Charts pour les graphiques
+
+Disponible dans le répertoire "client-demo"
+
 ## Autheur
 
 * **Frédérik Liénard**
