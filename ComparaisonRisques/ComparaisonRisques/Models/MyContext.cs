@@ -60,7 +60,7 @@ namespace ComparaisonRisques.Models
                         new ParametreInfo("Hémoglobine glyquée", "hbA1c", "const_biologique", "ratio", "0.05", "0.12", GroupeInfo.PatientEtParamètre),
                         new ParametreInfo("Cholesterol total", "cholesterol_total", "const_biologique", "mg/dl", "130","320", GroupeInfo.PatientEtParamètre),
                         new ParametreInfo("Cholesterol HDL", "cholesterol_HDL", "const_biologique", "mg/dl", "20","100", GroupeInfo.Patient),
-                        new ParametreInfo("Pression sanguine systolique", "pss", "admin", "mmHg", "90","200", GroupeInfo.PatientEtParamètre),
+                        new ParametreInfo("Pression sanguine systolique", "pss", "parametres", "mmHg", "90","200", GroupeInfo.PatientEtParamètre),
                         new ParametreInfo("Consommation tabagique", "consommation_tabagique", "assuetudes", "nombre de paquets par année", "0","80", GroupeInfo.PatientEtParamètre),
                         new ParametreInfo("Age", "age", "", "années", "0","88", GroupeInfo.Paramètre),
                         new ParametreInfo("Indice de masse corporelle", "bmi", "", "kg/m²", "11","59", GroupeInfo.Paramètre),
