@@ -75,6 +75,12 @@ namespace ComparaisonRisques.Controllers
         {
             var p = _context.ParametreInfos;
 
+            // Dans certain cas search peut être null et provoquer une erreur plus loin -> ceci protégera la suite
+            if (search == null)
+            {
+                search = "";
+            }
+
             var patientItems = _context.PatientItems
                 .Include("Admin")
                 .Include("Biometrie")
