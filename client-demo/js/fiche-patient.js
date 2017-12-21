@@ -20,7 +20,7 @@ function sendRequest(callback,URL="",method="GET",body=null) {
     xhr.send(body);
 }
 function xhrSuccess() { 
-    if (this.status==200 || this.status==204){
+    if (this.status==200 || this.status==204 || this.status==201){
 		document.getElementById("info_block").innerHTML="";
 		this.callback.apply(this, this.arguments); 
 	}else{
