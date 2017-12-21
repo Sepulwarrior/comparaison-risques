@@ -1,5 +1,5 @@
 
-var base_URL = 'http://172.25.84.94/api/';
+var base_URL = 'http://localhost/api/';
 var parms;
 
 // Modifie l'URL de base
